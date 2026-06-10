@@ -79,6 +79,10 @@ disable_selinux() {
 configure_static_ip() {
     log_info "正在配置静态IP..."
 
+    # [Bug5 修复] 二次运行时 resolv.conf 可能带有 immutable 属性（上次 configure_dns 设置），
+    # nmcli connection up 尝试更新 resolv.conf 会失败。先解除 immutable，后续 configure_dns 会重新设置。
+    chattr -i /etc/resolv.conf 2>/dev/null || true
+
     # NetworkManager 连接名称默认与网卡名一致
     local CON_NAME="${NET_INTERFACE}"
 
